@@ -1,0 +1,100 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Phaser prototype</title>
+	<script type="text/javascript" src="phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render:render });
+
+function preload() {
+
+	game.load.image('sky', '/assets/sky.png');
+	game.load.spritesheet('iggyStand', '/assets/iggyStand.png', 32, 48);
+	game.load.spritesheet('iggyWalk', '/assets/iggyWalk.png', 32, 40);
+	game.load.image('platform', '/assets/platform.png', 32, 40);
+}
+
+var player;
+var platforms;
+var cursors;
+var jumpButton;
+
+function create() {
+	//iggy walking
+	
+	this.player = game.add.sprite(100, 200, 'iggyWalk');
+	this.player.animations.add('walk')
+
+	//game physics
+game.physics.startSystem(Phaser.Physics.ARCADE);
+
+// game.physics.arcade.enable(player);
+
+//staring background
+game.add.sprite(0, 0, 'sky');
+
+//platforms
+    platforms = game.add.physicsGroup();
+
+    platforms.create(500, 150, 'platform');
+    platforms.create(-200, 300, 'platform');
+    platforms.create(400, 450, 'platform');
+
+    platforms.setAll('body.immovable', true);
+
+    cursors = game.input.keyboard.createCursorKeys();
+    jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    
+
+    player = game.add.sprite(100, 200, 'iggyWalk');
+
+    game.physics.arcade.enable(player);
+
+    player.body.collideWorldBounds = true;
+    player.body.gravity.y = 500;
+
+
+
+}
+
+function update() { 
+
+    game.physics.arcade.collide(player, platforms);
+
+    player.body.velocity.x = 0;
+
+    if (cursors.left.isDown)
+    {
+        player.body.velocity.x = -250;
+    }
+    else if (cursors.right.isDown)
+    {
+        player.body.velocity.x = 250;
+    }
+
+    if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down))
+    {
+        player.body.velocity.y = -400;
+    }
+
+}
+
+
+function render() {
+	}
+
+
+</script>
+
+</body>
+</html>
