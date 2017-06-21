@@ -16,11 +16,11 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render:render });
 function preload() {
 	game.load.image('sky', '/assets/sky.png');
-	game.load.spritesheet('iggyStand', '/assets/iggyStand.png', 32, 40);
-	game.load.spritesheet('iggyWalk', '/assets/iggyWalk.png', 39, 34, 10);
+	game.load.spritesheet('iggy', '/assets/iggy.png', 40, 35, 14);
 	game.load.image('platform', '/assets/platform.png', 32, 40);
 }
 var player;
+var facing = 'left';
 var platforms;
 var cursors;
 var jumpButton;
@@ -33,9 +33,15 @@ function create() {
 	game.add.sprite(0, 0, 'sky');
 	
 	//iggy walking
-	player = game.add.sprite(100, 200, 'iggyWalk');
-	var walk = player.animations.add('walk');
-	player.animations.play('walk', 12, true);
+	player = game.add.sprite(100, 200, 'iggy');
+	player.animations.add('walk');
+	player.animations.add('left', [7, 8, 9, 10, 11], 14, true);
+    player.animations.add('turn', [4], 20, true);
+    player.animations.add('right', [0, 1, 2, 3, 4], 14, true);
+
+
+	//2nd number is how fast the frames go
+	player.animations.play('walk', 8, true);
 	
 	//sprite size
 	player.scale.set(2);
@@ -47,7 +53,7 @@ function create() {
 
 //platforms
     platforms = game.add.physicsGroup();
-    platforms.create(500, 150, 'platform');
+    platforms.create(400, 150, 'platform');
     platforms.create(-200, 300, 'platform');
     platforms.create(400, 450, 'platform');
     platforms.setAll('body.immovable', true);
@@ -67,19 +73,64 @@ function update() {
     
     player.body.velocity.x = 0;
     
-    if (cursors.left.isDown)
-    {
-        player.body.velocity.x = -250;
-    }
-    else if (cursors.right.isDown)
-    {
-        player.body.velocity.x = 250;
-    }
+//     if (cursors.left.isDown)
+//     {
+//         player.body.velocity.x = -250;
+//     }
+//     else if (cursors.right.isDown)
+//     {
+//         player.body.velocity.x = 250;
+//     }
     if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down))
     {
         player.body.velocity.y = -400;
+        player.animations.play('left')
+
+
+    
+		}
+
+    player.body.velocity.x = 0;
+
+    if (cursors.left.isDown)
+    {
+        player.body.velocity.x = -200;
+
+        if (facing != 'left')
+        {
+            player.animations.play('left');
+            facing = 'left';
+        }
     }
-}
+    else if (cursors.right.isDown)
+    {
+        player.body.velocity.x = 200;
+
+        if (facing != 'right')
+        {
+            player.animations.play('right');
+            facing = 'right';
+        }
+    }
+    else
+    {
+        if (facing != 'idle')
+        {
+            player.animations.stop();
+
+            if (facing == 'left')
+            {
+                player.frame = 6;
+            }
+            else
+            {
+                player.frame = 0;
+            }
+
+            facing = 'idle';
+        }
+    }
+}    
 
 function render() {
 	
