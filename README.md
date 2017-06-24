@@ -6,7 +6,7 @@ I chose this as my final project to show off what I was taught in class and to s
 
 # How to run...
 
-go to terminal 
-type python -m SimpleHTTPServer
-then use this http://127.0.0.1:8000 to run the game
+go to terminal, 
+type in python -m SimpleHTTPServer,
+then use this http://127.0.0.1:8000 to run the game,
 or this http://192.168.1.2:8000 which ever works for you.
