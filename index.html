@@ -56,7 +56,7 @@ function create() {
 	game.add.sprite(0, 0, 'sky');
 	
 	//iggy walking
-	player = game.add.sprite(75, 75, 'iggy');
+	player = game.add.sprite(-700, 850, 'iggy');
 	player.animations.add('walk');
 	player.animations.add('left', [7, 8, 9, 10], 14, true);
     player.animations.add('turn', [4], 20, true);
@@ -107,7 +107,7 @@ function create() {
 
 
     //  Here we'll create 12 of them evenly spaced apart
-    for (var i = 0; i < 12; i++)
+    for (var i = 0; i < 15; i++)
     {
         //  Create a diamond inside of the 'diamonds' group
         var diamond = diamonds.create(i * 70, 0, 'diamond');
@@ -140,7 +140,7 @@ function update() {
 	
     player.body.velocity.x = 0;
   
-    if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down && (facing !='left'))) 
+    if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down && (facing =!'left'))) 
     {
         player.body.velocity.y = -350;
         player.animations.play('Rjump');
@@ -195,10 +195,9 @@ function update() {
     }
 }    
 
-if (score = 12){
-    text = game.add.text(50, 50, 'you found all the treasure!'{fontSize: '32px', fill, #fff});
 
-};
+
+
 
 
 
@@ -210,6 +209,10 @@ function collectDiamond (player, diamond) {
     //  Add and update the score
     score += 1;
     scoreText.text = 'Score: ' + score;
+
+    if (score >= 15){
+    Text = game.add.text(50, 50,'you found all the treasure! ', { fontSize: '32px', fill: '#000' });
+};
 };
 
 function render() {
