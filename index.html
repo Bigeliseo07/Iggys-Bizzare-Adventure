@@ -106,11 +106,12 @@ function create() {
     diamonds.enableBody = true;
 
 
-    //  Here we'll create 12 of them evenly spaced apart
-    for (var i = 0; i < 15; i++)
+    
+    for (var i = 0; i < 20; i++)
     {
         //  Create a diamond inside of the 'diamonds' group
-        var diamond = diamonds.create(i * 70, 0, 'diamond');
+        var diamond = diamonds.create(i * 70, 100, 'diamond');
+
 
         //  Let gravity do its thing
         diamond.body.gravity.y = 300;
@@ -210,7 +211,7 @@ function collectDiamond (player, diamond) {
     score += 1;
     scoreText.text = 'Score: ' + score;
 
-    if (score >= 15){
+    if (score >= 20){
     Text = game.add.text(50, 50,'you found all the treasure! ', { fontSize: '32px', fill: '#000' });
 };
 };
