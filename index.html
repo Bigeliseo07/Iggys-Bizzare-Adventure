@@ -22,57 +22,111 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 
 
 function preload() {
-	game.load.image('tiles', 'assets/image-tileset.png');
-	game.load.image('sky', 'valleybackground.png');
+	game.load.image('tiles', 'simpleTiles.png');
+	game.load.image('sky', 'assets/8-bitvalley.png');
 	game.load.spritesheet('iggy', 'assets/iggy.png', 40, 35, 14);
 	game.load.image('platform', 'assets/platform.png', 32, 40);
+	game.load.image('diamond', 'assets/blueDiamond.png', 21 ,19);
+
+	game.load.tilemap('level1', 'assets/BizzareAdv.csv', null, Phaser.Tilemap.csv);
+    	
+
 }
 
 var player;
-var facing = 'left';
+var facing = 'right';
 var platforms;
 var cursors;
 var jumpButton;
 var sky;
 var map;
+var layer;
 var score = 0;
+var scoreString = '';
+var scoreText;
+var diamond;
+var diamonds;
+var i = 0;
+
+
 
 function create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);	
 
-//staring background
+//starting background
 	game.add.sprite(0, 0, 'sky');
 	
 	//iggy walking
-	player = game.add.sprite(100, 200, 'iggy');
+	player = game.add.sprite(75, 75, 'iggy');
 	player.animations.add('walk');
-	player.animations.add('left', [7, 8, 9, 10, 11], 14, true);
+	player.animations.add('left', [7, 8, 9, 10], 14, true);
     player.animations.add('turn', [4], 20, true);
-    player.animations.add('right', [0, 1, 2, 3, 4], 14, true);
-    player.animations.add('Ljump', [13], 14, true);
-    player.animations.add('Rjump', [12], 14, true); 
- 
+    player.animations.add('right', [0, 1, 2, 3], 14, true);
+    player.animations.add('Ljump', [12], 14, true);
+    player.animations.add('Rjump', [13], 14, true); 
+
 	//2nd number is how fast the frames go
-	player.animations.play('walk', 8, true);
+	player.animations.play('walk', 7, true);
 	
 	//sprite size
-	player.scale.set(2);
+	player.scale.set(1.1);
 	player.smoothed = false;
 
-	// var map = game.add.tilemap('level', 'world.tmx');
-	// map.addTilesetImage('world', 'tiles');
+	
 
-	game.world.setBounds(0, 0, 1024, 416);
+	//map tiles
+	map = game.add.tilemap('level1', 16, 16);
+
+    //  Now add in the tileset
+    map.addTilesetImage('tiles');
+    
+    
+    //  Create our layer
+    layer = map.createLayer(0);
+
+    //  Resize the world
+    layer.resizeWorld();
+
+
+    map.setCollisionBetween(0, 115);
+
+    map.debug = true;
+    
+
+	game.world.setBounds(0, 0, 1344, 944);
+
+    //camera following iggy
+    game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+   
+   //scoreString = 'Score : ';
+    //scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
+
+   diamonds = game.add.group();
+
+    //  We will enable physics for any diamond that is created in this group
+    diamonds.enableBody = true;
+
+
+    //  Here we'll create 12 of them evenly spaced apart
+    for (var i = 0; i < 12; i++)
+    {
+        //  Create a diamond inside of the 'diamonds' group
+        var diamond = diamonds.create(i * 70, 0, 'diamond');
+
+        //  Let gravity do its thing
+        diamond.body.gravity.y = 300;
+
+     
+
+         scoreText = game.add.text(16, 16,'score: ', { fontSize: '32px', fill: '#fff' });
+
+    }
+
+
 
     
 
-   
-
-    //  Notice that the sprite doesn't have any momentum at all,
-    //  it's all just set by the camera follow type.
-    //  0.1 is the amount of linear interpolation to use.
-    //  The smaller the value, the smooth the camera (and the longer it takes to catch up)
-    game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+    
 
 
 
@@ -82,11 +136,11 @@ function create() {
 
 
 //platforms
-    platforms = game.add.physicsGroup();
-    platforms.create(400, 150, 'platform');
-    platforms.create(-200, 300, 'platform');
-    platforms.create(400, 450, 'platform');
-    platforms.setAll('body.immovable', true);
+    // platforms = game.add.physicsGroup();
+    // platforms.create(400, 150, 'platform');
+    // platforms.create(-200, 300, 'platform');
+    // platforms.create(400, 450, 'platform');
+    // platforms.setAll('body.immovable', true);
     cursors = game.input.keyboard.createCursorKeys();
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     
@@ -98,25 +152,32 @@ function create() {
 }
 function update() { 
 
+	 game.physics.arcade.overlap(player, diamonds, collectDiamond, null);
 
-    game.physics.arcade.collide(player, platforms);
-    
+
+    game.physics.arcade.collide(player, layer);
+	game.physics.arcade.collide(diamonds, layer);
+	
     player.body.velocity.x = 0;
   
-    if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down)) 
+    if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down && facing != 'left')) 
     {
-        player.body.velocity.y = -400;
+        player.body.velocity.y = -350;
         player.animations.play('Ljump')
-        player.animations.play('Rjump')
-		
+       	
 		}
+		else if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down && facing != 'right')) {
 
+				player.body.velocity.y = -350;
+				player.animations.play('Rjump');
+
+		}
 		
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown)
     {
-        player.body.velocity.x = -200;
+        player.body.velocity.x = -150;
 
         if (facing != 'left')
         {
@@ -126,7 +187,7 @@ function update() {
     }
     else if (cursors.right.isDown)
     {
-        player.body.velocity.x = 200;
+        player.body.velocity.x = 150;
 
         if (facing != 'right')
         {
@@ -154,7 +215,25 @@ function update() {
     }
 }    
 
+if (score < 12){
+
+}
+
+function collectDiamond (player, diamond) {
+    
+    // Removes the diamond from the screen
+    diamond.kill();
+
+    //  Add and update the score
+    score += 1;
+    scoreText.text = 'Score: ' + score;
+};
+
 function render() {
+	  game.debug.text(game.time.physicsElapsed, 32, 32);
+     game.debug.body(player);
+     game.debug.bodyInfo(player, 16, 24);
+
 	
 	}
 
